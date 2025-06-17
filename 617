@@ -11,12 +11,17 @@ class ToDoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'ToDoアプリ',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeData(primarySwatch: Colors.blue),
       home: const ToDoListPage(),
     );
   }
+}
+
+class Task {
+  String title;
+  bool isDone;
+
+  Task({required this.title, this.isDone = false});
 }
 
 class ToDoListPage extends StatefulWidget {
@@ -27,17 +32,23 @@ class ToDoListPage extends StatefulWidget {
 }
 
 class _ToDoListPageState extends State<ToDoListPage> {
-  final List<String> _todoList = [];
+  final List<Task> _todoList = [];
   final TextEditingController _controller = TextEditingController();
 
   void _addTodoItem() {
-    final String task = _controller.text;
-    if (task.isNotEmpty) {
+    final String taskText = _controller.text.trim();
+    if (taskText.isNotEmpty) {
       setState(() {
-        _todoList.add(task);
+        _todoList.add(Task(title: taskText));
         _controller.clear();
       });
     }
+  }
+
+  void _toggleTaskDone(int index) {
+    setState(() {
+      _todoList[index].isDone = !_todoList[index].isDone;
+    });
   }
 
   void _removeTodoItem(int index) {
@@ -49,9 +60,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ToDoリスト'),
-      ),
+      appBar: AppBar(title: const Text('ToDoリスト')),
       body: Column(
         children: [
           Padding(
@@ -61,9 +70,7 @@ class _ToDoListPageState extends State<ToDoListPage> {
                 Expanded(
                   child: TextField(
                     controller: _controller,
-                    decoration: const InputDecoration(
-                      labelText: 'やることを入力',
-                    ),
+                    decoration: const InputDecoration(labelText: 'やることを入力'),
                   ),
                 ),
                 IconButton(
@@ -77,9 +84,18 @@ class _ToDoListPageState extends State<ToDoListPage> {
             child: ListView.builder(
               itemCount: _todoList.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(_todoList[index]),
-                  trailing: IconButton(
+                final task = _todoList[index];
+                return CheckboxListTile(
+                  title: Text(
+                    task.title,
+                    style: TextStyle(
+                      decoration:
+                          task.isDone ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  value: task.isDone,
+                  onChanged: (_) => _toggleTaskDone(index),
+                  secondary: IconButton(
                     icon: const Icon(Icons.delete),
                     onPressed: () => _removeTodoItem(index),
                   ),
@@ -92,3 +108,4 @@ class _ToDoListPageState extends State<ToDoListPage> {
     );
   }
 }
+
