@@ -1,0 +1,94 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const ToDoApp());
+}
+
+class ToDoApp extends StatelessWidget {
+  const ToDoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ToDoアプリ',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: const ToDoListPage(),
+    );
+  }
+}
+
+class ToDoListPage extends StatefulWidget {
+  const ToDoListPage({super.key});
+
+  @override
+  State<ToDoListPage> createState() => _ToDoListPageState();
+}
+
+class _ToDoListPageState extends State<ToDoListPage> {
+  final List<String> _todoList = [];
+  final TextEditingController _controller = TextEditingController();
+
+  void _addTodoItem() {
+    final String task = _controller.text;
+    if (task.isNotEmpty) {
+      setState(() {
+        _todoList.add(task);
+        _controller.clear();
+      });
+    }
+  }
+
+  void _removeTodoItem(int index) {
+    setState(() {
+      _todoList.removeAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('ToDoリスト'),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      labelText: 'やることを入力',
+                    ),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addTodoItem,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _todoList.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_todoList[index]),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _removeTodoItem(index),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
