@@ -1,0 +1,110 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(const ToDoApp());
+}
+
+class ToDoApp extends StatelessWidget {
+  const ToDoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'ToDoアプリ',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const ToDoListPage(),
+    );
+  }
+}
+
+class Task {
+  String title;
+  bool isDone;
+
+  Task({required this.title, this.isDone = false});
+}
+
+class ToDoListPage extends StatefulWidget {
+  const ToDoListPage({super.key});
+
+  @override
+  State<ToDoListPage> createState() => _ToDoListPageState();
+}
+
+class _ToDoListPageState extends State<ToDoListPage> {
+  final List<Task> _todoList = [];
+  final TextEditingController _controller = TextEditingController();
+
+  void _addTodoItem() {
+    final String taskText = _controller.text.trim();
+    if (taskText.isNotEmpty) {
+      setState(() {
+        _todoList.add(Task(title: taskText));
+        _controller.clear();
+      });
+    }
+  }
+
+  void _toggleTaskDone(int index) {
+    setState(() {
+      _todoList[index].isDone = !_todoList[index].isDone;
+    });
+  }
+
+  void _removeTodoItem(int index) {
+    setState(() {
+      _todoList.removeAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('ToDoリスト')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(labelText: 'やることを入力'),
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _addTodoItem,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: _todoList.length,
+              itemBuilder: (context, index) {
+                final task = _todoList[index];
+                return CheckboxListTile(
+                  title: Text(
+                    task.title,
+                    style: TextStyle(
+                      decoration:
+                          task.isDone ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                  value: task.isDone,
+                  onChanged: (_) => _toggleTaskDone(index),
+                  secondary: IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _removeTodoItem(index),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
